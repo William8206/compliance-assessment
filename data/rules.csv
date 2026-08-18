@@ -1,1 +1,17 @@
-rule_id,market,priority,condition_type,condition_operator,condition_value,regulation_id,standard_id,test_item_id,result,reason,source_id,rule_version,status,effective_date,expiry_date,last_reviewed
+rule_id,market,priority,condition_type,condition_operator,condition_value,condition_logic,regulation_id,standard_id,test_item_id,result,reason,source_id,rule_version,status,effective_date,expiry_date,last_reviewed
+RULE-CE-001,EU,100,MARKET,EQUAL,EU,OR,REG-EU-EMC,,,"REQUIRED","EU market requires CE EMC assessment",SRC-EU-EMC,1.0,Active,2026-07-16,,2026-07-16
+RULE-CE-002,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55032,TEST-CE-EM-001,REQUIRED,"Information technology and multimedia equipment emission assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-003,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55032,TEST-CE-EM-002,REQUIRED,"Information technology and multimedia equipment radiated emission assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-004,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55035,TEST-CE-IM-001,REQUIRED,"Immunity assessment including ESD",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-005,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55035,TEST-CE-IM-002,REQUIRED,"Radiated RF immunity assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-006,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55035,TEST-CE-IM-003,REQUIRED,"EFT / Burst immunity assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-007,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55035,TEST-CE-IM-004,REQUIRED,"Surge immunity assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-CE-008,EU,100,PRODUCT_TYPE,NOT_EQUAL,Other,OR,REG-EU-EMC,STD-EN55035,TEST-CE-IM-005,REQUIRED,"Conducted RF immunity assessment",SRC-EU-EMC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-001,US,100,PRODUCT_TYPE,EQUAL,Industrial PC,OR,REG-US-FCC,STD-FCC-PART15,,REQUIRED,"FCC Part 15 Subpart B applicability for Industrial PC",SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-002,US,100,PRODUCT_TYPE,EQUAL,Industrial PC,OR,REG-US-FCC,STD-FCC-PART15,TEST-FCC-EM-002,REQUIRED,"47 CFR 15.109 radiated emission requirements for unintentional radiators",SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-003,US,100,POWER_TYPE,EQUAL,AC,OR,REG-US-FCC,STD-FCC-PART15,TEST-FCC-EM-001,REQUIRED,"FCC conducted emission requirements",SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-003,US,100,EXTERNAL_ADAPTER,EQUAL,Yes,OR,REG-US-FCC,STD-FCC-PART15,TEST-FCC-EM-001,REQUIRED,FCC conducted emission requirements,SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-004,US,100,WIFI,EQUAL,True,OR,REG-US-FCC,STD-FCC-15-C,TEST-FCC-RF-001,REQUIRED,Wi-Fi functionality requires FCC intentional radiator assessment,SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-005,US,100,BLUETOOTH,EQUAL,True,OR,REG-US-FCC,STD-FCC-15-C,TEST-FCC-RF-002,REQUIRED,Bluetooth functionality requires FCC intentional radiator assessment,SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-006,US,100,LTE_5G,EQUAL,True,OR,REG-US-FCC,STD-FCC-15-C,TEST-FCC-RF-003,REQUIRED,LTE / 5G functionality requires FCC intentional radiator assessment,SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18
+RULE-FCC-007,US,100,OTHER_RF,EQUAL,True,OR,REG-US-FCC,STD-FCC-15-C,TEST-FCC-RF-004,REQUIRED,Other RF functionality requires FCC intentional radiator assessment,SRC-US-FCC,1.0,Active,2026-08-18,,2026-08-18

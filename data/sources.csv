@@ -1,1 +1,3 @@
-source_id,source_type,organization,title,url,publication_date,document_version,checked_date,checked_by,notes
+source_id,source_type,organization,title,publication_date,document_version,checked_date,checked_by,notes
+SRC-EU-EMC,Official,European Commission,Directive 2014/30/EU - Electromagnetic Compatibility,2014-02-26,2014/30/EU,2026-08-17,William,EUR-Lex official source
+SRC-US-FCC,US,FCC,47 CFR Part 15,Official FCC regulation source,Active,2026-08-17,FCC

@@ -2,116 +2,229 @@ import streamlit as st
 
 from auth import require_login
 
+from utils.rules import evaluate_product
 
-# ==========================================
-# Login Check
-# ==========================================
+from utils.database import (
+    load_regulations,
+    load_standards,
+    load_test_items,
+)
+
+
+# =========================================================
+# Page Configuration
+# =========================================================
+
+st.set_page_config(
+    page_title="法規評估",
+    page_icon="📋",
+    layout="wide",
+)
+
+
+# =========================================================
+# Login
+# =========================================================
 
 require_login()
 
 
-# ==========================================
-# Page Configuration
-# ==========================================
-
-st.set_page_config(
-    page_title="法規評估",
-    page_icon="⚖️",
-    layout="wide"
-)
-
-
-# ==========================================
-# Compact Layout
-# ==========================================
+# =========================================================
+# Page Style
+# =========================================================
 
 st.markdown(
     """
-    <style>
+<style>
 
-    /* ======================================
-       Overall Layout
-       ====================================== */
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
 
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.15rem;
-    }
+/* -----------------------------------------
+   Compact Layout
+----------------------------------------- */
 
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.35rem;
-    }
+div[data-testid="stVerticalBlock"] {
+    gap: 0.7rem;
+}
 
+div[data-testid="stHorizontalBlock"] {
+    gap: 0.8rem;
+}
 
-    /* ======================================
-       Main Headers
-       ====================================== */
+/* -----------------------------------------
+   Headers
+----------------------------------------- */
 
-    h1 {
-        margin-top: 0.2rem;
-        margin-bottom: 0.2rem;
-    }
+h1 {
+    margin-bottom: 0.2rem;
+}
 
-    h2 {
-        margin-top: 0.5rem;
-        margin-bottom: 0.2rem;
-    }
+h2 {
+    margin-top: 0.6rem;
+    margin-bottom: 0.3rem;
+}
 
-    h3 {
-        margin-top: 0.25rem;
-        margin-bottom: 0.1rem;
-    }
+h3 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+}
 
+/* -----------------------------------------
+   Divider
+----------------------------------------- */
 
-    /* ======================================
-       Checkbox
-       ====================================== */
+hr {
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
+}
 
-    div[data-testid="stCheckbox"] {
-        margin-top: -0.3rem;
-        margin-bottom: -0.3rem;
-    }
+/* -----------------------------------------
+   Checkbox
+----------------------------------------- */
 
+div[data-testid="stCheckbox"] {
+    margin-top: -0.25rem;
+    margin-bottom: -0.25rem;
+}
 
-    /* ======================================
-       Input Widgets
-       ====================================== */
+/* -----------------------------------------
+   Result Table
+----------------------------------------- */
 
-    div[data-testid="stTextInput"],
-    div[data-testid="stSelectbox"],
-    div[data-testid="stMultiSelect"],
-    div[data-testid="stNumberInput"] {
-        margin-bottom: -0.15rem;
-    }
+.compliance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
 
+.compliance-table th {
+    background: #F1F3F5;
+    color: #333333;
+    font-weight: 600;
+    text-align: left;
+    padding: 9px 10px;
+    border: 1px solid #D9DDE2;
+}
 
-    /* ======================================
-       Divider
-       ====================================== */
+.compliance-table td {
+    padding: 9px 10px;
+    border: 1px solid #E1E4E8;
+    vertical-align: middle;
+}
 
-    hr {
-        margin-top: 0.4rem;
-        margin-bottom: 0.4rem;
-    }
+.compliance-table tr:hover {
+    background: #FAFAFA;
+}
 
+/* -----------------------------------------
+   Required
+----------------------------------------- */
 
-    /* ======================================
-       Alert
-       ====================================== */
+.required-badge {
+    display: inline-block;
+    background: #FF4B4B;
+    color: #000000;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+}
 
-    div[data-testid="stAlert"] {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
+/* -----------------------------------------
+   Optional
+----------------------------------------- */
 
-    </style>
-    """,
-    unsafe_allow_html=True
+.optional-badge {
+    display: inline-block;
+    background: #E9ECEF;
+    color: #333333;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* -----------------------------------------
+   Standard Header
+----------------------------------------- */
+
+.standard-header {
+    margin-top: 12px;
+    margin-bottom: 3px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* -----------------------------------------
+   Market Header
+----------------------------------------- */
+
+.market-header {
+    margin-top: 14px;
+    margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* -----------------------------------------
+   Summary Row
+----------------------------------------- */
+
+.summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 30px;
+    padding: 5px 10px;
+    margin: 2px 0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.summary-label {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: #333333;
+}
+
+.summary-value {
+    font-weight: 600;
+    text-align: right;
+    margin-left: 15px;
+}
+
+/* -----------------------------------------
+   Result Count
+----------------------------------------- */
+
+.result-count {
+    display: inline-block;
+    background: #F1F3F5;
+    color: #333333;
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+</style>
+""",
+    unsafe_allow_html=True,
 )
 
 
-# ==========================================
+# =========================================================
 # Header
-# ==========================================
+# =========================================================
 
 st.title("① 法規評估")
 
@@ -126,81 +239,79 @@ st.info(
 st.divider()
 
 
-# ==========================================
-# ① Product Information
-# ==========================================
+# =========================================================
+# ② Product Information
+# =========================================================
 
-st.header("① Product Information")
+st.header("② 產品資訊")
 
 col1, col2 = st.columns(2)
 
 with col1:
 
     product_model = st.text_input(
-        "Product Model",
-        placeholder="例如：LYNX-811A"
+        "產品型號",
+        placeholder="例如：LYNX-811A",
     )
 
 with col2:
 
-    product_type = st.selectbox(
-        "Product Type",
+    target_market = st.multiselect(
+        "目標市場",
         [
-            "Industrial PC",
-            "Box PC",
-            "Panel PC",
-            "Motherboard",
-            "Embedded Computer",
-            "Other"
-        ]
+            "EU (CE)",
+            "US (FCC)",
+        ],
     )
 
-target_market = st.multiselect(
-    "Target Market",
+
+product_type = st.selectbox(
+    "產品類型",
     [
-        "European Union (CE)",
-        "United States (FCC)"
+        "Industrial PC",
+        "Box PC",
+        "Panel PC",
+        "Embedded Computer",
     ],
-    help="選擇此產品預計銷售的市場。"
 )
 
 
-# ==========================================
-# ② Power Information
-# ==========================================
+# =========================================================
+# ③ Power Information
+# =========================================================
 
-st.header("② Power Information")
+st.header("③ 電源資訊")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
 
     power_type = st.selectbox(
-        "Power Input",
+        "電源輸入",
         [
             "DC",
-            "AC"
-        ]
+            "AC",
+        ],
     )
 
 with col2:
 
     min_voltage = st.number_input(
-        "Minimum Voltage (V)",
-        min_value=0.0,
-        max_value=1000.0,
+        "最低電壓 (V)",
+        min_value=5.0,
+        max_value=300.0,
         value=9.0,
-        step=0.1
+        step=0.1,
     )
 
 with col3:
 
     max_voltage = st.number_input(
-        "Maximum Voltage (V)",
-        min_value=0.0,
-        max_value=1000.0,
+        "最高電壓 (V)",
+        min_value=5.0,
+        max_value=330.0,
         value=36.0,
-        step=0.1
+        step=0.1,
     )
 
 external_adapter = st.checkbox(
@@ -208,269 +319,210 @@ external_adapter = st.checkbox(
 )
 
 
-# ==========================================
-# ③ Wireless / RF Function
-# ==========================================
+# =========================================================
+# ④ Wireless / RF
+# =========================================================
 
-st.header("③ Wireless / RF Function")
+st.header("④ 無線 / RF 功能")
 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-
-    wifi = st.checkbox(
-        "Wi-Fi"
-    )
+    wifi = st.checkbox("Wi-Fi")
 
 with col2:
-
-    bluetooth = st.checkbox(
-        "Bluetooth"
-    )
+    bluetooth = st.checkbox("Bluetooth")
 
 with col3:
-
-    lte_5g = st.checkbox(
-        "LTE / 5G"
-    )
+    lte_5g = st.checkbox("LTE / 5G")
 
 with col4:
-
-    other_rf = st.checkbox(
-        "Other RF"
-    )
+    other_rf = st.checkbox("Other RF")
 
 
-# ==========================================
-# ④ Interface
-# ==========================================
+# =========================================================
+# ⑤ Interface
+# =========================================================
 
-st.header("④ Interface")
+st.header("⑤ 介面")
 
-
-# ------------------------------------------
+# ---------------------------------------------------------
 # General Interface
-# ------------------------------------------
+# ---------------------------------------------------------
 
 st.subheader("General Interface")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-
-    ethernet = st.checkbox(
-        "Ethernet"
-    )
+    ethernet = st.checkbox("Ethernet")
 
 with col2:
-
-    type_c = st.checkbox(
-        "Type-C"
-    )
+    type_c = st.checkbox("Type-C")
 
 with col3:
-
-    audio = st.checkbox(
-        "Audio"
-    )
+    audio = st.checkbox("Audio")
 
 
-# ------------------------------------------
-# Serial Interface
-# ------------------------------------------
+# ---------------------------------------------------------
+# Serial
+# ---------------------------------------------------------
 
 st.subheader("Serial Interface")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-
-    rs232 = st.checkbox(
-        "RS-232"
-    )
+    rs232 = st.checkbox("RS-232")
 
 with col2:
-
-    rs422 = st.checkbox(
-        "RS-422"
-    )
+    rs422 = st.checkbox("RS-422")
 
 with col3:
-
-    rs485 = st.checkbox(
-        "RS-485"
-    )
+    rs485 = st.checkbox("RS-485")
 
 
-# ------------------------------------------
-# Digital I/O
-# ------------------------------------------
+# ---------------------------------------------------------
+# DIDO / GPIO
+# ---------------------------------------------------------
 
 st.subheader("Digital I/O")
 
 col1, col2 = st.columns(2)
 
 with col1:
-
-    dido = st.checkbox(
-        "DIDO"
-    )
+    dido = st.checkbox("DIDO")
 
 with col2:
-
-    gpio = st.checkbox(
-        "GPIO"
-    )
+    gpio = st.checkbox("GPIO")
 
 
-# ------------------------------------------
+# ---------------------------------------------------------
 # USB
-# ------------------------------------------
+# ---------------------------------------------------------
 
 st.subheader("USB")
 
 col1, col2 = st.columns(2)
 
 with col1:
-
-    usb_2 = st.checkbox(
-        "USB 2.0"
-    )
+    usb_2 = st.checkbox("USB 2.0")
 
 with col2:
-
-    usb_3 = st.checkbox(
-        "USB 3.x"
-    )
+    usb_3 = st.checkbox("USB 3.x")
 
 
-# ------------------------------------------
-# Display Interface
-# ------------------------------------------
+# ---------------------------------------------------------
+# Display
+# ---------------------------------------------------------
 
 st.subheader("Display Interface")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
-
-    vga = st.checkbox(
-        "VGA"
-    )
+    vga = st.checkbox("VGA")
 
 with col2:
-
-    hdmi = st.checkbox(
-        "HDMI"
-    )
+    hdmi = st.checkbox("HDMI")
 
 with col3:
-
-    dp = st.checkbox(
-        "DisplayPort"
-    )
+    dp = st.checkbox("DisplayPort")
 
 with col4:
-
-    dvi = st.checkbox(
-        "DVI"
-    )
+    dvi = st.checkbox("DVI")
 
 with col5:
-
-    display_type_c = st.checkbox(
-        "Type-C Display"
-    )
+    display_type_c = st.checkbox("Type-C Display")
 
 
-# ------------------------------------------
-# Industrial Bus
-# ------------------------------------------
+# ---------------------------------------------------------
+# Industrial Interface
+# ---------------------------------------------------------
 
-st.subheader("Industrial Bus")
+st.subheader("Industrial Interface")
 
-can_bus = st.checkbox(
-    "CAN Bus"
-)
+col1, col2 = st.columns(2)
 
+with col1:
+    can_bus = st.checkbox("CAN Bus")
 
-# ------------------------------------------
-# Power over Ethernet
-# ------------------------------------------
-
-st.subheader("Power over Ethernet")
-
-poe = st.checkbox(
-    "PoE"
-)
+with col2:
+    poe = st.checkbox("PoE")
 
 
-# ==========================================
-# ⑤ Other Functions
-# ==========================================
+# =========================================================
+# ⑥ Other Functions
+# =========================================================
 
-st.header("⑤ Other Functions")
+st.header("⑥ 其他功能")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-
-    battery = st.checkbox(
-        "Battery"
-    )
+    battery = st.checkbox("Battery")
 
 with col2:
-
-    touchscreen = st.checkbox(
-        "Touchscreen"
-    )
+    touchscreen = st.checkbox("Touchscreen")
 
 with col3:
-
-    audio_function = st.checkbox(
-        "Audio Function"
-    )
-
-
-# ==========================================
-# ⑥ Product Characteristics
-# ==========================================
-
-st.header("⑥ Product Characteristics")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-
-    internal_power_supply = st.checkbox(
-        "Internal Power Supply"
-    )
-
-with col2:
-
-    external_power_supply = st.checkbox(
-        "External Power Supply"
-    )
-
-with col3:
-
     industrial_environment = st.checkbox(
         "Industrial Environment"
     )
 
 
-# ==========================================
+# =========================================================
 # ⑦ Product Condition Summary
-# ==========================================
+# =========================================================
 
 st.divider()
 
-st.header("⑦ Product Condition Summary")
+st.header("⑦ 產品狀況概要")
 
 
-# ==========================================
-# Prepare Display Values
-# ==========================================
+# =========================================================
+# Summary Helper
+# =========================================================
+
+def summary_row(
+    label,
+    value,
+    active=False,
+):
+
+    if active:
+
+        bg = "#E8F5E9"
+        text = "#137333"
+
+    else:
+
+        bg = "#F8F9FA"
+        text = "#333333"
+
+
+    html = (
+        f'<div class="summary-row" '
+        f'style="background:{bg};">'
+        f'<div class="summary-label">'
+        f'{label}'
+        f'</div>'
+        f'<div class="summary-value" '
+        f'style="color:{text};">'
+        f'{value}'
+        f'</div>'
+        f'</div>'
+    )
+
+    st.markdown(
+        html,
+        unsafe_allow_html=True,
+    )
+
+
+# =========================================================
+# Summary Values
+# =========================================================
 
 target_market_display = (
     ", ".join(target_market)
@@ -479,344 +531,1091 @@ target_market_display = (
 )
 
 
-serial_display = ", ".join(
-    [
-        name
-        for name, enabled in [
-            ("RS-232", rs232),
-            ("RS-422", rs422),
-            ("RS-485", rs485),
-        ]
-        if enabled
-    ]
-) or "None"
+serial_list = []
+
+if rs232:
+    serial_list.append("RS-232")
+
+if rs422:
+    serial_list.append("RS-422")
+
+if rs485:
+    serial_list.append("RS-485")
 
 
-dido_gpio_display = ", ".join(
-    [
-        name
-        for name, enabled in [
-            ("DIDO", dido),
-            ("GPIO", gpio),
-        ]
-        if enabled
-    ]
-) or "None"
+serial_display = (
+    ", ".join(serial_list)
+    if serial_list
+    else "None"
+)
 
 
-usb_display = ", ".join(
-    [
-        name
-        for name, enabled in [
-            ("USB 2.0", usb_2),
-            ("USB 3.x", usb_3),
-        ]
-        if enabled
-    ]
-) or "None"
+dido_gpio_list = []
+
+if dido:
+    dido_gpio_list.append("DIDO")
+
+if gpio:
+    dido_gpio_list.append("GPIO")
 
 
-display_display = ", ".join(
-    [
-        name
-        for name, enabled in [
-            ("VGA", vga),
-            ("HDMI", hdmi),
-            ("DisplayPort", dp),
-            ("DVI", dvi),
-            ("Type-C Display", display_type_c),
-        ]
-        if enabled
-    ]
-) or "None"
+dido_gpio_display = (
+    ", ".join(dido_gpio_list)
+    if dido_gpio_list
+    else "None"
+)
 
 
-# ==========================================
-# Summary Row
-# ==========================================
+usb_list = []
 
-def summary_row(label, value, active=False):
+if usb_2:
+    usb_list.append("USB 2.0")
 
-    if active:
-        bg = "#E8F5E9"
-        text = "#137333"
-    else:
-        bg = "#F8F9FA"
-        text = "#333333"
-
-    html = f"""
-<div style="display:flex;align-items:center;justify-content:space-between;width:100%;min-height:30px;padding:5px 10px;margin:2px 0;background:{bg};border-radius:5px;font-size:14px;">
-<div style="font-size:15px;font-weight:500;white-space:nowrap;color:#333333;">{label}</div><div style="font-weight:600;text-align:right;margin-left:15px;color:{text};">{value}</div>
-</div>
-"""
-
-    st.markdown(
-        html,
-        unsafe_allow_html=True
-    )
+if usb_3:
+    usb_list.append("USB 3.x")
 
 
-# ==========================================
-# Two Column Layout
-# ==========================================
+usb_display = (
+    ", ".join(usb_list)
+    if usb_list
+    else "None"
+)
 
-outer_left, left_col, right_col, outer_right = st.columns([3.5, 2, 2 ,3.5])
+
+display_list = []
+
+if vga:
+    display_list.append("VGA")
+
+if hdmi:
+    display_list.append("HDMI")
+
+if dp:
+    display_list.append("DisplayPort")
+
+if dvi:
+    display_list.append("DVI")
+
+if display_type_c:
+    display_list.append("Type-C")
 
 
-# ==========================================
-# LEFT
-# ==========================================
+display_display = (
+    ", ".join(display_list)
+    if display_list
+    else "None"
+)
+
+
+# =========================================================
+# Summary Layout
+# =========================================================
+
+empty1, left_col, right_col, empty2 = st.columns(
+    [2, 3, 3, 2]
+)
+
+
+# =========================================================
+# Product / Power / Wireless
+# =========================================================
 
 with left_col:
 
-    st.markdown("**Product / Power / Wireless**")
+    st.markdown(
+        "**產品 / 電源 / 無線**"
+    )
 
     summary_row(
-        "Product Model",
+        "產品型號",
         product_model or "未輸入",
-        bool(product_model)
+        bool(product_model),
     )
 
     summary_row(
-        "Product Type",
+        "產品類型",
         product_type,
-        True
+        True,
     )
 
     summary_row(
-        "Target Market",
+        "目標市場",
         target_market_display,
-        bool(target_market)
+        bool(target_market),
     )
 
     summary_row(
-        "Power Input",
+        "電源輸入",
         power_type,
-        True
+        True,
     )
 
     summary_row(
-        "Input Voltage",
+        "輸入電壓",
         f"{min_voltage:.1f} ~ {max_voltage:.1f} V",
-        True
+        True,
     )
 
     summary_row(
         "External AC Adapter",
         "Yes" if external_adapter else "No",
-        external_adapter
+        external_adapter,
     )
 
     summary_row(
         "Wi-Fi",
         "Yes" if wifi else "No",
-        wifi
+        wifi,
     )
 
     summary_row(
         "Bluetooth",
         "Yes" if bluetooth else "No",
-        bluetooth
+        bluetooth,
     )
 
     summary_row(
         "LTE / 5G",
         "Yes" if lte_5g else "No",
-        lte_5g
+        lte_5g,
     )
 
     summary_row(
         "Other RF",
         "Yes" if other_rf else "No",
-        other_rf
+        other_rf,
     )
 
 
-# ==========================================
-# RIGHT
-# ==========================================
+# =========================================================
+# Interface / Function
+# =========================================================
 
 with right_col:
 
-    st.markdown("**Interface / Function**")
+    st.markdown(
+        "**介面 / 功能**"
+    )
 
     summary_row(
         "Ethernet",
         "Yes" if ethernet else "No",
-        ethernet
+        ethernet,
     )
 
     summary_row(
         "Type-C",
         "Yes" if type_c else "No",
-        type_c
+        type_c,
     )
 
     summary_row(
         "Audio",
         "Yes" if audio else "No",
-        audio
+        audio,
     )
 
     summary_row(
         "Serial Interface",
         serial_display,
-        rs232 or rs422 or rs485
+        bool(serial_list),
     )
 
     summary_row(
         "DIDO / GPIO",
         dido_gpio_display,
-        dido or gpio
+        bool(dido_gpio_list),
     )
 
     summary_row(
         "USB",
         usb_display,
-        usb_2 or usb_3
+        bool(usb_list),
     )
 
     summary_row(
         "Display Interface",
         display_display,
-        vga or hdmi or dp or dvi or display_type_c
+        bool(display_list),
     )
 
     summary_row(
         "CAN Bus",
         "Yes" if can_bus else "No",
-        can_bus
+        can_bus,
     )
 
     summary_row(
         "PoE",
         "Yes" if poe else "No",
-        poe
+        poe,
     )
 
     summary_row(
         "Battery",
         "Yes" if battery else "No",
-        battery
+        battery,
     )
 
     summary_row(
         "Touchscreen",
         "Yes" if touchscreen else "No",
-        touchscreen
+        touchscreen,
     )
 
     summary_row(
         "Industrial Environment",
         "Yes" if industrial_environment else "No",
-        industrial_environment
+        industrial_environment,
     )
 
 
-# ==========================================
+# =========================================================
 # ⑧ Compliance Assessment
-# ==========================================
+# =========================================================
 
 st.divider()
 
-st.header("⑧ Compliance Assessment")
+st.header("⑧ 法規評估結果")
 
+
+# =========================================================
+# Load Database
+# =========================================================
+
+regulations = load_regulations()
+
+standards = load_standards()
+
+test_items = load_test_items()
+
+
+# =========================================================
+# Start Assessment
+# =========================================================
 
 if st.button(
     "開始法規判定",
     type="primary",
-    use_container_width=True
+    use_container_width=True,
 ):
+
+    # -----------------------------------------------------
+    # Validation
+    # -----------------------------------------------------
 
     if not product_model:
 
         st.error(
-            "請先輸入 Product Model。"
+            "請先輸入產品型號。"
         )
 
-    elif not target_market:
+        st.stop()
+
+
+    if not target_market:
 
         st.error(
-            "請至少選擇一個 Target Market。"
+            "請至少選擇一個目標市場。"
         )
+
+        st.stop()
+
+
+    # =====================================================
+    # Product Data
+    # =====================================================
+
+    product_common = {
+
+        "PRODUCT_MODEL":
+            product_model,
+
+        "PRODUCT_TYPE":
+            product_type,
+
+        "POWER_TYPE":
+            power_type,
+
+        "MIN_VOLTAGE":
+            min_voltage,
+
+        "MAX_VOLTAGE":
+            max_voltage,
+
+        "EXTERNAL_ADAPTER":
+            external_adapter,
+
+        "WIFI":
+            wifi,
+
+        "BLUETOOTH":
+            bluetooth,
+
+        "LTE_5G":
+            lte_5g,
+
+        "OTHER_RF":
+            other_rf,
+
+        "ETHERNET":
+            ethernet,
+
+        "TYPE_C":
+            type_c,
+
+        "AUDIO":
+            audio,
+
+        "RS232":
+            rs232,
+
+        "RS422":
+            rs422,
+
+        "RS485":
+            rs485,
+
+        "DIDO":
+            dido,
+
+        "GPIO":
+            gpio,
+
+        "USB_2":
+            usb_2,
+
+        "USB_3":
+            usb_3,
+
+        "VGA":
+            vga,
+
+        "HDMI":
+            hdmi,
+
+        "DP":
+            dp,
+
+        "DVI":
+            dvi,
+
+        "DISPLAY_TYPE_C":
+            display_type_c,
+
+        "CAN_BUS":
+            can_bus,
+
+        "POE":
+            poe,
+
+        "BATTERY":
+            battery,
+
+        "TOUCHSCREEN":
+            touchscreen,
+
+        "INDUSTRIAL_ENVIRONMENT":
+            industrial_environment,
+    }
+
+
+    # =====================================================
+    # Market Mapping
+    # =====================================================
+
+    market_mapping = {
+
+        "EU (CE)": "EU",
+
+        "US (FCC)": "US",
+    }
+
+
+    # =====================================================
+    # Evaluate
+    # =====================================================
+
+    all_results = []
+
+
+    for market_name in target_market:
+
+        product = product_common.copy()
+
+        product["MARKET"] = market_mapping.get(
+            market_name,
+            market_name,
+        )
+
+
+        results = evaluate_product(
+            product
+        )
+
+
+        for result in results:
+
+            result["market"] = market_name
+
+            all_results.append(
+                result
+            )
+
+
+    # =====================================================
+    # No Result
+    # =====================================================
+
+    if not all_results:
+
+        st.warning(
+            "目前沒有符合條件的法規規則。"
+        )
+
+        st.stop()
+
+
+    # =====================================================
+# Result Summary
+# =====================================================
+
+rule_total = len(all_results)
+
+regulation_total = len(
+    set(
+        result["regulation_id"]
+        for result in all_results
+        if result.get("regulation_id")
+    )
+)
+
+required_total = 0
+optional_total = 0
+unmapped_total = 0
+
+
+for result in all_results:
+
+    test_item_id = result.get(
+        "test_item_id"
+    )
+
+    # ---------------------------------------------
+    # Rule 沒有對應 Test Item
+    # → 法規適用性 Rule
+    # ---------------------------------------------
+
+    if not test_item_id:
+
+        unmapped_total += 1
+
+        continue
+
+
+    rows = test_items[
+        test_items["test_item_id"]
+        == test_item_id
+    ]
+
+
+    # ---------------------------------------------
+    # Rule 有 Test Item ID
+    # 但資料庫找不到
+    # ---------------------------------------------
+
+    if len(rows) == 0:
+
+        unmapped_total += 1
+
+        continue
+
+
+    applicability = str(
+        rows.iloc[0]["applicability"]
+    ).strip().upper()
+
+
+    if applicability == "REQUIRED":
+
+        required_total += 1
+
+
+    elif applicability == "OPTIONAL":
+
+        optional_total += 1
+
 
     else:
 
-        st.success(
-            "產品條件已完成。"
+        unmapped_total += 1
+
+
+# =====================================================
+# Result Summary UI
+# =====================================================
+
+st.success(
+    "法規判定完成"
+)
+
+
+col1, col2, col3 = st.columns(3)
+
+
+with col1:
+
+    st.metric(
+        "適用法規",
+        f"{regulation_total} 項"
+    )
+
+
+with col2:
+
+    st.metric(
+        "Required 測試",
+        f"{required_total} 項"
+    )
+
+
+with col3:
+
+    st.metric(
+        "Optional 測試",
+        f"{optional_total} 項"
+    )
+
+
+# -----------------------------------------------------
+# Additional Information
+# -----------------------------------------------------
+
+if unmapped_total > 0:
+
+    st.caption(
+        f"另外有 {unmapped_total} 項 Rule "
+        f"屬於法規適用性判定或尚未對應 Test Item。"
+    )
+
+
+    # =====================================================
+    # Market
+    # =====================================================
+
+    for market_name in target_market:
+
+        market_results = [
+
+            result
+
+            for result in all_results
+
+            if result["market"]
+            == market_name
+        ]
+
+
+        if not market_results:
+
+            st.warning(
+                f"{market_name}："
+                f"目前沒有符合條件的規則。"
+            )
+
+            continue
+
+
+        # =================================================
+        # Market Header
+        # =================================================
+
+        st.markdown(
+            f'<div class="market-header">'
+            f'🌐 {market_name}'
+            f'</div>',
+            unsafe_allow_html=True,
         )
 
-        st.info(
-            "目前 Rule Engine 尚未啟用，下一階段將依據法規資料庫進行自動判定。"
+
+        # =================================================
+        # Regulation
+        # =================================================
+
+        regulation_ids = list(
+            dict.fromkeys(
+
+                result["regulation_id"]
+
+                for result in market_results
+
+                if result.get("regulation_id")
+            )
         )
 
 
-# ==========================================
+        for regulation_id in regulation_ids:
+
+            regulation_rows = regulations[
+                regulations["regulation_id"]
+                == regulation_id
+            ]
+
+
+            # ------------------------------------------------
+            # Regulation Information
+            # ------------------------------------------------
+
+            if len(regulation_rows) > 0:
+
+                regulation = (
+                    regulation_rows.iloc[0]
+                )
+
+                regulation_name = str(
+                    regulation["regulation_name"]
+                )
+
+                regulation_number = str(
+                    regulation["regulation_number"]
+                )
+
+                regulation_status = str(
+                    regulation["status"]
+                )
+
+                regulation_reviewed = str(
+                    regulation["last_reviewed"]
+                )
+
+            else:
+
+                regulation_name = regulation_id
+
+                regulation_number = ""
+
+                regulation_status = ""
+
+                regulation_reviewed = ""
+
+
+            st.markdown(
+                f"### 📘 {regulation_name}"
+            )
+
+
+            if regulation_number:
+
+                st.caption(
+                    f"Regulation: "
+                    f"{regulation_number}"
+                    f"  |  "
+                    f"Status: "
+                    f"{regulation_status}"
+                    f"  |  "
+                    f"Last Reviewed: "
+                    f"{regulation_reviewed}"
+                )
+
+
+            # =================================================
+            # Standards
+            # =================================================
+
+            regulation_results = [
+
+                result
+
+                for result in market_results
+
+                if result["regulation_id"]
+                == regulation_id
+            ]
+
+
+            standard_ids = list(
+                dict.fromkeys(
+
+                    result["standard_id"]
+
+                    for result in regulation_results
+
+                    if result.get("standard_id")
+                )
+            )
+
+
+            for standard_id in standard_ids:
+
+                standard_rows = standards[
+                    standards["standard_id"]
+                    == standard_id
+                ]
+
+
+                if len(standard_rows) == 0:
+
+                    continue
+
+
+                standard = (
+                    standard_rows.iloc[0]
+                )
+
+
+                standard_code = str(
+                    standard["standard_code"]
+                )
+
+                standard_name = str(
+                    standard["standard_name"]
+                )
+
+
+                # =================================================
+                # Get Test Items
+                # =================================================
+
+                standard_results = [
+
+                    result
+
+                    for result in regulation_results
+
+                    if result["standard_id"]
+                    == standard_id
+                ]
+
+
+                test_item_ids = list(
+                    dict.fromkeys(
+
+                        result["test_item_id"]
+
+                        for result in standard_results
+
+                        if result.get("test_item_id")
+                    )
+                )
+
+
+                test_rows = []
+
+
+                for test_item_id in test_item_ids:
+
+                    rows = test_items[
+                        test_items["test_item_id"]
+                        == test_item_id
+                    ]
+
+
+                    if len(rows) == 0:
+
+                        continue
+
+
+                    test_rows.append(
+                        rows.iloc[0]
+                    )
+
+
+                # =================================================
+                # Count Required
+                # =================================================
+
+                required_count = 0
+
+
+                for row in test_rows:
+
+                    applicability = str(
+                        row["applicability"]
+                    ).strip().upper()
+
+
+                    if applicability == "REQUIRED":
+
+                        required_count += 1
+
+
+                # =================================================
+                # Standard Header
+                # =================================================
+
+                st.markdown(
+                    f'<div class="standard-header">'
+                    f'{standard_code}'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+
+                st.markdown(
+                    f'<span class="result-count">'
+                    f'{len(test_rows)} 個測試項目'
+                    f'　|　'
+                    f'Required: {required_count}'
+                    f'</span>',
+                    unsafe_allow_html=True,
+                )
+
+
+                # =================================================
+                # Test Item Table
+                # =================================================
+
+                table_parts = []
+
+
+                table_parts.append(
+                    '<table class="compliance-table">'
+                )
+
+                table_parts.append(
+                    '<thead>'
+                    '<tr>'
+                    '<th style="width:32%;">測試項目</th>'
+                    '<th style="width:18%;">測試類型</th>'
+                    '<th style="width:18%;">適用性</th>'
+                    '<th>說明</th>'
+                    '</tr>'
+                    '</thead>'
+                )
+
+                table_parts.append(
+                    '<tbody>'
+                )
+
+
+                for row in test_rows:
+
+                    test_name = str(
+                        row["test_item_name"]
+                    )
+
+                    test_type = str(
+                        row["test_type"]
+                    )
+
+                    applicability = str(
+                        row["applicability"]
+                    ).strip()
+
+                    description = str(
+                        row["description"]
+                    )
+
+
+                    if (
+                        applicability.upper()
+                        == "REQUIRED"
+                    ):
+
+                        badge = (
+                            '<span class="required-badge">'
+                            'Required'
+                            '</span>'
+                        )
+
+                    else:
+
+                        badge = (
+                            '<span class="optional-badge">'
+                            f'{applicability}'
+                            '</span>'
+                        )
+
+
+                    table_parts.append(
+                        '<tr>'
+                        f'<td><strong>{test_name}</strong></td>'
+                        f'<td>{test_type}</td>'
+                        f'<td>{badge}</td>'
+                        f'<td>{description}</td>'
+                        '</tr>'
+                    )
+
+
+                table_parts.append(
+                    '</tbody>'
+                )
+
+                table_parts.append(
+                    '</table>'
+                )
+
+
+                st.markdown(
+                    "".join(table_parts),
+                    unsafe_allow_html=True,
+                )
+
+
+                # =================================================
+                # Standard Details
+                # =================================================
+
+                with st.expander(
+                    f"查看 {standard_code} 詳細資料"
+                ):
+
+                    detail_col1, detail_col2 = (
+                        st.columns(2)
+                    )
+
+
+                    with detail_col1:
+
+                        st.markdown(
+                            f"**Standard ID**  \n"
+                            f"{standard_id}"
+                        )
+
+                        st.markdown(
+                            f"**Standard Code**  \n"
+                            f"{standard_code}"
+                        )
+
+                        st.markdown(
+                            f"**Version**  \n"
+                            f"{standard['version']}"
+                        )
+
+
+                    with detail_col2:
+
+                        st.markdown(
+                            f"**Status**  \n"
+                            f"{standard['status']}"
+                        )
+
+                        st.markdown(
+                            f"**Effective Date**  \n"
+                            f"{standard['effective_date']}"
+                        )
+
+                        st.markdown(
+                            f"**Last Reviewed**  \n"
+                            f"{standard['last_reviewed']}"
+                        )
+
+
+                    st.markdown(
+                        f"**Standard Name**  \n"
+                        f"{standard_name}"
+                    )
+
+
+                    st.markdown(
+                        f"**Description**  \n"
+                        f"{standard['description']}"
+                    )
+
+
+                    st.divider()
+
+
+                    st.markdown(
+                        "#### 測試項目詳細資料"
+                    )
+
+
+                    # ---------------------------------------------
+                    # Individual Test Item
+                    # ---------------------------------------------
+
+                    for row in test_rows:
+
+                        test_name = str(
+                            row["test_item_name"]
+                        )
+
+
+                        with st.expander(
+                            test_name
+                        ):
+
+                            col1, col2 = (
+                                st.columns(2)
+                            )
+
+
+                            with col1:
+
+                                st.write(
+                                    "**Test Item ID**"
+                                )
+
+                                st.write(
+                                    row["test_item_id"]
+                                )
+
+
+                                st.write(
+                                    "**Category**"
+                                )
+
+                                st.write(
+                                    row["test_category"]
+                                )
+
+
+                                st.write(
+                                    "**Test Type**"
+                                )
+
+                                st.write(
+                                    row["test_type"]
+                                )
+
+
+                            with col2:
+
+                                st.write(
+                                    "**Applicability**"
+                                )
+
+                                st.write(
+                                    row["applicability"]
+                                )
+
+
+                                st.write(
+                                    "**Last Reviewed**"
+                                )
+
+                                st.write(
+                                    row["last_reviewed"]
+                                )
+
+
+                            st.write(
+                                "**Description**"
+                            )
+
+                            st.write(
+                                row["description"]
+                            )
+
+
+# =========================================================
 # System Information
-# ==========================================
+# =========================================================
 
-with st.expander("系統資訊"):
-
-    st.write(
-        "本頁目前負責產品條件輸入。"
-    )
-
-    st.write(
-        "後續將串接 Regulation → Standard → Test Item → Rule Engine。"
-    )
-
-# ==========================================
-# ⑧ Compliance Assessment
-# ==========================================
-
-st.divider()
-
-st.header("⑧ Compliance Assessment")
-
-
-if st.button(
-    "開始法規判定",
-    type="primary",
-    use_container_width=True
+with st.expander(
+    "系統資訊"
 ):
 
-    # --------------------------------------
-    # Basic Validation
-    # --------------------------------------
-
-    if not product_model:
-
-        st.error(
-            "請先輸入 Product Model。"
-        )
-
-    elif not target_market:
-
-        st.error(
-            "請至少選擇一個 Target Market。"
-        )
-
-    else:
-
-        st.success(
-            "產品條件已完成。"
-        )
-
-        st.info(
-            "目前 Rule Engine 尚未啟用，下一階段將依據法規資料庫進行自動判定。"
-        )
-
-
-# ==========================================
-# System Information
-# ==========================================
-
-with st.expander("系統資訊"):
-
     st.write(
-        "本頁目前負責產品條件輸入。"
+        "本頁負責產品條件輸入與法規適用性判定。"
     )
 
     st.write(
-        "後續將串接 Regulation → Standard → Test Item → Rule Engine。"
+        "判定流程："
+        "Product Condition → "
+        "Rule Engine → "
+        "Regulation → "
+        "Standard → "
+        "Test Item"
     )

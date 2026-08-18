@@ -78,10 +78,9 @@ st.title("CE / FCC Compliance Assessment")
 st.caption(
     "Information Product Regulatory Assessment System"
 )
-
 st.divider()
 
-st.header("歡迎使用法規評估系統")
+st.header("歡迎使用系統評估網站")
 
 st.write(
     """
@@ -93,7 +92,7 @@ st.write(
 )
 
 st.info(
-    "請先進入「法規評估」開始產品法規判定。"
+    "請先進入「系統評估」開始產品法規判定。"
 )
 
 # ==========================================

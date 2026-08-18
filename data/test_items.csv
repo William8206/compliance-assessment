@@ -1,1 +1,14 @@
 test_item_id,test_category,test_item_name,test_type,standard_id,applicability,description,last_reviewed
+TEST-CE-EM-001,EMC,Conducted Emission,Emission,STD-EN55032,Required,AC mains conducted emission test,2026-07-06
+TEST-CE-EM-002,EMC,Radiated Emission,Emission,STD-EN55032,Required,Radiated emission test,2026-07-11
+TEST-CE-IM-001,Immunity,Electrostatic Discharge (ESD),Immunity,STD-EN55035,Required,ESD immunity test,2026-07-11
+TEST-CE-IM-002,Immunity,Radiated Immunity,Immunity,STD-EN55035,Required,Radiated RF immunity test,2026-07-11
+TEST-CE-IM-003,Immunity,EFT / Burst,Immunity,STD-EN55035,Required,Electrical fast transient burst immunity test,2026-07-14
+TEST-CE-IM-004,Immunity,Surge,Immunity,STD-EN55035,Required,Surge immunity test,2026-07-14
+TEST-CE-IM-005,Immunity,Conducted Immunity,Immunity,STD-EN55035,Required,RF conducted immunity test,2026-07-14
+TEST-FCC-EM-001,Emission,Conducted Emission,FCC Part 15 Subpart B,STD-FCC-PART15,Required,Conducted emissions assessment for unintentional radiators under FCC Part 15 Subpart B Section 15.107,2026-07-21
+TEST-FCC-EM-002,Emission,Radiated Emission,FCC Part 15 Subpart B,STD-FCC-PART15,Required,Radiated emissions assessment for unintentional radiators under FCC Part 15 Subpart B Section 15.109,2026-07-21
+TEST-FCC-RF-001,RF,Wi-Fi Intentional Radiator,RF,STD-FCC-15-C,Required,FCC Part 15 intentional radiator assessment for Wi-Fi functionality,2026-07-23
+TEST-FCC-RF-002,RF,Bluetooth Intentional Radiator,RF,STD-FCC-15-C,Required,FCC Part 15 intentional radiator assessment for Bluetooth functionality,2026-07-25
+TEST-FCC-RF-003,RF,LTE / 5G Intentional Radiator,RF,STD-FCC-15-C,Required,FCC intentional radiator assessment for LTE / 5G functionality,2026-08-10
+TEST-FCC-RF-004,RF,Other RF Intentional Radiator,RF,STD-FCC-15-C,Required,FCC intentional radiator assessment for other RF functionality,2026-08-10

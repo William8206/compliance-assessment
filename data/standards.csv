@@ -1,1 +1,4 @@
-standard_id,regulation_id,standard_name,standard_number,version,status,effective_date,withdrawal_date,scope,source_id,last_reviewed
+standard_id,standard_code,standard_name,regulation_id,version,status,effective_date,withdrawal_date,description,source_id,last_reviewed
+STD-EN55032,EN 55032,Electromagnetic compatibility of multimedia equipment - Emission requirements,REG-EU-EMC,EN 55032:2015/A11:2020,Active,,,"EMC emission requirements",SRC-EU-EMC,2026-07-23
+STD-FCC-PART15,FCC Part 15,Radio Frequency Devices,REG-US-FCC,47 CFR Part 15,Active,,,"General requirements for unintentional radiators",SRC-US-FCC,2026-07-25
+STD-FCC-15-C,FCC Part 15 Subpart C,Intentional Radiators,REG-US-FCC,47 CFR Part 15 Subpart C,Active,2026-08-18,,"Intentional radiator requirements",SRC-US-FCC,2026-07-25
