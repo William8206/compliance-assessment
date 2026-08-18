@@ -33,7 +33,7 @@ if not st.session_state.login:
     st.subheader("🔐 Internal Access")
 
     st.write(
-        "此系統提供內部 SRD / PM 使用，請輸入通關密語。"
+        "此系統提供認證評估使用，請輸入通關密語。"
     )
 
     password = st.text_input(
