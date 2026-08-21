@@ -938,7 +938,6 @@ if st.button(
 
     all_results = []
 
-
     for market_name in target_market:
 
         product = product_common.copy()
@@ -963,7 +962,7 @@ if st.button(
             )
 
 
-    # =====================================================
+   # =====================================================
     # No Result
     # =====================================================
 
@@ -975,80 +974,79 @@ if st.button(
 
         st.stop()
 
-
+ # =====================================================
+    # Result Summary
     # =====================================================
-# Result Summary
-# =====================================================
 
-rule_total = len(all_results)
+    rule_total = len(all_results)
 
-regulation_total = len(
-    set(
-        result["regulation_id"]
-        for result in all_results
-        if result.get("regulation_id")
-    )
-)
-
-required_total = 0
-optional_total = 0
-unmapped_total = 0
-
-
-for result in all_results:
-
-    test_item_id = result.get(
-        "test_item_id"
+    regulation_total = len(
+        set(
+            result["regulation_id"]
+            for result in all_results
+            if result.get("regulation_id")
+        )
     )
 
-    # ---------------------------------------------
-    # Rule 沒有對應 Test Item
-    # → 法規適用性 Rule
-    # ---------------------------------------------
-
-    if not test_item_id:
-
-        unmapped_total += 1
-
-        continue
+    required_total = 0
+    optional_total = 0
+    unmapped_total = 0
 
 
-    rows = test_items[
-        test_items["test_item_id"]
-        == test_item_id
-    ]
+    for result in all_results:
 
+        test_item_id = result.get(
+            "test_item_id"
+        )
 
     # ---------------------------------------------
-    # Rule 有 Test Item ID
-    # 但資料庫找不到
-    # ---------------------------------------------
+        # Rule 沒有對應 Test Item
+        # → 法規適用性 Rule
+        # ---------------------------------------------
 
-    if len(rows) == 0:
+        if not test_item_id:
 
-        unmapped_total += 1
+            unmapped_total += 1
 
-        continue
-
-
-    applicability = str(
-        rows.iloc[0]["applicability"]
-    ).strip().upper()
+            continue
 
 
-    if applicability == "REQUIRED":
-
-        required_total += 1
-
-
-    elif applicability == "OPTIONAL":
-
-        optional_total += 1
+        rows = test_items[
+            test_items["test_item_id"]
+            == test_item_id
+        ]
 
 
-    else:
+   # ---------------------------------------------
+        # Rule 有 Test Item ID
+        # 但資料庫找不到
+        # ---------------------------------------------
 
-        unmapped_total += 1
+        if len(rows) == 0:
+
+            unmapped_total += 1
+
+            continue
+
+
+        applicability = str(
+            rows.iloc[0]["applicability"]
+        ).strip().upper()
+
+
+        if applicability == "REQUIRED":
+
+            required_total += 1
+
+
+        elif applicability == "OPTIONAL":
+
+            optional_total += 1
+
+
+        else:
+
+            unmapped_total += 1
 
 
 # =====================================================
