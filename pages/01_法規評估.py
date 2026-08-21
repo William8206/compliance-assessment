@@ -794,6 +794,24 @@ test_items = load_test_items()
 # Start Assessment
 # =========================================================
 
+if "all_results" not in st.session_state:
+    st.session_state.all_results = []
+
+if "rule_total" not in st.session_state:
+    st.session_state.rule_total = 0
+
+if "regulation_total" not in st.session_state:
+    st.session_state.regulation_total = 0
+
+if "required_total" not in st.session_state:
+    st.session_state.required_total = 0
+
+if "optional_total" not in st.session_state:
+    st.session_state.optional_total = 0
+
+if "unmapped_total" not in st.session_state:
+    st.session_state.unmapped_total = 0
+
 if st.button(
     "開始法規判定",
     type="primary",
@@ -935,9 +953,7 @@ if st.button(
     # =====================================================
     # Evaluate
     # =====================================================
-
-    all_results = []
-
+   
     for market_name in target_market:
 
         product = product_common.copy()
@@ -977,6 +993,7 @@ if st.button(
  # =====================================================
     # Result Summary
     # =====================================================
+if all_results:
 
     rule_total = len(all_results)
 
@@ -1050,52 +1067,51 @@ if st.button(
 
 
 # =====================================================
-# Result Summary UI
-# =====================================================
+    # Result Summary UI
+    # =====================================================
 
-st.success(
-    "法規判定完成"
-)
-
-
-col1, col2, col3 = st.columns(3)
-
-
-with col1:
-
-    st.metric(
-        "適用法規",
-        f"{regulation_total} 項"
+    st.success(
+        "法規判定完成"
     )
 
 
-with col2:
-
-    st.metric(
-        "Required 測試",
-        f"{required_total} 項"
-    )
+    col1, col2, col3 = st.columns(3)
 
 
-with col3:
+    with col1:
 
-    st.metric(
-        "Optional 測試",
-        f"{optional_total} 項"
-    )
+        st.metric(
+            "適用法規",
+            f"{regulation_total} 項"
+        )
 
 
-# -----------------------------------------------------
-# Additional Information
-# -----------------------------------------------------
+    with col2:
 
-if unmapped_total > 0:
+        st.metric(
+            "Required 測試",
+            f"{required_total} 項"
+        )
 
-    st.caption(
-        f"另外有 {unmapped_total} 項 Rule "
-        f"屬於法規適用性判定或尚未對應 Test Item。"
-    )
 
+    with col3:
+
+        st.metric(
+            "Optional 測試",
+            f"{optional_total} 項"
+        )
+
+
+    # -----------------------------------------------------
+    # Additional Information
+    # -----------------------------------------------------
+
+    if unmapped_total > 0:
+
+        st.caption(
+            f"另外有 {unmapped_total} 項 Rule "
+            f"屬於法規適用性判定或尚未對應 Test Item。"
+        )
 
     # =====================================================
     # Market
