@@ -5,7 +5,7 @@ import streamlit as st
 # ==========================================
 
 st.set_page_config(
-    page_title="CE / FCC Compliance Assessment",
+    page_title="System Evaluation Regulations Website V1.0",
     page_icon="⚖️",
     layout="wide"
 )
@@ -20,7 +20,7 @@ if "authenticated" not in st.session_state:
 
 def login_page():
 
-    st.title("CE / FCC Compliance Assessment")
+    st.title("System Evaluation Regulations Website V1.0")
 
     st.caption(
         "Information Product Regulatory Assessment System"
@@ -28,7 +28,7 @@ def login_page():
 
     st.divider()
 
-    st.header("🔐 Internal Access")
+    st.header("ߔРInternal Access")
 
     st.write(
         "此系統提供認證評估使用，請輸入通關密語。"
