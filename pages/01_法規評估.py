@@ -226,7 +226,7 @@ div[data-testid="stCheckbox"] {
 # Header
 # =========================================================
 
-st.title("? 法規評估")
+st.title("法規評估")
 
 st.caption(
     "Information Product Regulatory Assessment System"
@@ -243,7 +243,7 @@ st.divider()
 # ? Product Information
 # =========================================================
 
-st.header("1 產品資訊")
+st.header("1產品資訊")
 
 col1, col2 = st.columns(2)
 
@@ -280,7 +280,7 @@ product_type = st.selectbox(
 # ? Power Information
 # =========================================================
 
-st.header("? 電源資訊")
+st.header("2電源資訊")
 
 col1, col2, col3 = st.columns(3)
 
@@ -323,7 +323,7 @@ external_adapter = st.checkbox(
 # ? Wireless / RF
 # =========================================================
 
-st.header("? 無線 / RF 功能")
+st.header("3無線 / RF 功能")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -344,7 +344,7 @@ with col4:
 # ? Interface
 # =========================================================
 
-st.header("? 介面")
+st.header("4介面")
 
 # ---------------------------------------------------------
 # General Interface
@@ -455,7 +455,7 @@ with col2:
 # ? Other Functions
 # =========================================================
 
-st.header("? 其他功能")
+st.header("5其他功能")
 
 col1, col2, col3 = st.columns(3)
 
@@ -477,7 +477,7 @@ with col3:
 
 st.divider()
 
-st.header("? 產品狀況概要")
+st.header("6產品狀況概要")
 
 
 # =========================================================
@@ -776,7 +776,7 @@ with right_col:
 
 st.divider()
 
-st.header("? 法規評估結果")
+st.header("7法規評估結果")
 
 
 # =========================================================
