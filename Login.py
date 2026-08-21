@@ -28,7 +28,7 @@ def login_page():
 
     st.divider()
 
-    st.header("ߔРInternal Access")
+    st.header("Internal Access")
 
     st.write(
         "此系統提供認證評估使用，請輸入通關密語。"
