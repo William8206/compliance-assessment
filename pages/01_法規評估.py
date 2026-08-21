@@ -17,7 +17,7 @@ from utils.database import (
 
 st.set_page_config(
     page_title="法規評估",
-    page_icon="📋",
+    page_icon="??",
     layout="wide",
 )
 
@@ -226,7 +226,7 @@ div[data-testid="stCheckbox"] {
 # Header
 # =========================================================
 
-st.title("① 法規評估")
+st.title("? 法規評估")
 
 st.caption(
     "Information Product Regulatory Assessment System"
@@ -240,10 +240,10 @@ st.divider()
 
 
 # =========================================================
-# ② Product Information
+# ? Product Information
 # =========================================================
 
-st.header("② 產品資訊")
+st.header("1 產品資訊")
 
 col1, col2 = st.columns(2)
 
@@ -277,10 +277,10 @@ product_type = st.selectbox(
 
 
 # =========================================================
-# ③ Power Information
+# ? Power Information
 # =========================================================
 
-st.header("③ 電源資訊")
+st.header("? 電源資訊")
 
 col1, col2, col3 = st.columns(3)
 
@@ -320,10 +320,10 @@ external_adapter = st.checkbox(
 
 
 # =========================================================
-# ④ Wireless / RF
+# ? Wireless / RF
 # =========================================================
 
-st.header("④ 無線 / RF 功能")
+st.header("? 無線 / RF 功能")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -341,10 +341,10 @@ with col4:
 
 
 # =========================================================
-# ⑤ Interface
+# ? Interface
 # =========================================================
 
-st.header("⑤ 介面")
+st.header("? 介面")
 
 # ---------------------------------------------------------
 # General Interface
@@ -452,10 +452,10 @@ with col2:
 
 
 # =========================================================
-# ⑥ Other Functions
+# ? Other Functions
 # =========================================================
 
-st.header("⑥ 其他功能")
+st.header("? 其他功能")
 
 col1, col2, col3 = st.columns(3)
 
@@ -472,12 +472,12 @@ with col3:
 
 
 # =========================================================
-# ⑦ Product Condition Summary
+# ? Product Condition Summary
 # =========================================================
 
 st.divider()
 
-st.header("⑦ 產品狀況概要")
+st.header("? 產品狀況概要")
 
 
 # =========================================================
@@ -771,12 +771,12 @@ with right_col:
 
 
 # =========================================================
-# ⑧ Compliance Assessment
+# ? Compliance Assessment
 # =========================================================
 
 st.divider()
 
-st.header("⑧ 法規評估結果")
+st.header("? 法規評估結果")
 
 
 # =========================================================
@@ -793,24 +793,6 @@ test_items = load_test_items()
 # =========================================================
 # Start Assessment
 # =========================================================
-
-if "all_results" not in st.session_state:
-    st.session_state.all_results = []
-
-if "rule_total" not in st.session_state:
-    st.session_state.rule_total = 0
-
-if "regulation_total" not in st.session_state:
-    st.session_state.regulation_total = 0
-
-if "required_total" not in st.session_state:
-    st.session_state.required_total = 0
-
-if "optional_total" not in st.session_state:
-    st.session_state.optional_total = 0
-
-if "unmapped_total" not in st.session_state:
-    st.session_state.unmapped_total = 0
 
 if st.button(
     "開始法規判定",
@@ -953,7 +935,10 @@ if st.button(
     # =====================================================
     # Evaluate
     # =====================================================
-   
+
+    all_results = []
+
+
     for market_name in target_market:
 
         product = product_common.copy()
@@ -978,7 +963,7 @@ if st.button(
             )
 
 
-   # =====================================================
+    # =====================================================
     # No Result
     # =====================================================
 
@@ -990,10 +975,10 @@ if st.button(
 
         st.stop()
 
- # =====================================================
+
+    # =====================================================
     # Result Summary
     # =====================================================
-if all_results:
 
     rule_total = len(all_results)
 
@@ -1016,7 +1001,7 @@ if all_results:
             "test_item_id"
         )
 
-    # ---------------------------------------------
+        # ---------------------------------------------
         # Rule 沒有對應 Test Item
         # → 法規適用性 Rule
         # ---------------------------------------------
@@ -1034,7 +1019,7 @@ if all_results:
         ]
 
 
-   # ---------------------------------------------
+        # ---------------------------------------------
         # Rule 有 Test Item ID
         # 但資料庫找不到
         # ---------------------------------------------
@@ -1066,7 +1051,7 @@ if all_results:
             unmapped_total += 1
 
 
-# =====================================================
+    # =====================================================
     # Result Summary UI
     # =====================================================
 
@@ -1113,6 +1098,7 @@ if all_results:
             f"屬於法規適用性判定或尚未對應 Test Item。"
         )
 
+
     # =====================================================
     # Market
     # =====================================================
@@ -1146,7 +1132,7 @@ if all_results:
 
         st.markdown(
             f'<div class="market-header">'
-            f'🌐 {market_name}'
+            f'?? {market_name}'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -1214,7 +1200,7 @@ if all_results:
 
 
             st.markdown(
-                f"### 📘 {regulation_name}"
+                f"### ?? {regulation_name}"
             )
 
 
