@@ -16,7 +16,7 @@ from utils.database import (
 # =========================================================
 
 st.set_page_config(
-    page_title="法規評估",
+    page_title="系統評估",
     page_icon="??",
     layout="wide",
 )
@@ -226,7 +226,7 @@ div[data-testid="stCheckbox"] {
 # Header
 # =========================================================
 
-st.title("法規評估")
+st.title("系統評估")
 
 st.caption(
     "Information Product Regulatory Assessment System"
@@ -776,7 +776,7 @@ with right_col:
 
 st.divider()
 
-st.header("7法規評估結果")
+st.header("7系統評估結果")
 
 
 # =========================================================
